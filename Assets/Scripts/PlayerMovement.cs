@@ -1,38 +1,56 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody rb;
-  public float movementSpeed = 6f;
-    [SerializeField] float jumpForce = 5f;
-    //int wholeNumber = 3;
-    //float decimalNumber = 3.45f;
-    //string text = "blabla";
-    //bool condition = false;
+    [SerializeField] float movementSpeed = 6f;
+    [SerializeField] float jumpForce = 5f ;
+    [SerializeField] LayerMask ground;
+
+    [SerializeField] Transform groundCheck;
+
+    [SerializeField] AudioSource jumpSound;
+
     // Start is called before the first frame update
     void Start()
     {
-       rb=GetComponent<Rigidbody>();
-        
+        rb = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
+    // Updates is called once per frame
     void Update()
     {
-       float horizontalInput=Input.GetAxis("Horizontal");
-       float verticalInput=Input.GetAxis("Vertical");
-        rb.velocity = new Vector3(horizontalInput *movementSpeed, rb.velcotiy.y, verticalInput* movementSpeed);
-       
-        if (Input.GetButtonDown("Jump"))
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+
+        rb.velocity = new Vector3(horizontalInput * movementSpeed, rb.velocity.y, verticalInput * movementSpeed);
+
+        if (Input.GetButtonDown("Jump") && IsGrounded())
         {
-           rb.velocity=new Vector3(rb.velocity.x,5f,rb.velocity.z);
+           Jump();
         }
-        //انا مكنتش شايفه فعلا في مله دي * و لا لاء ف لو نظركم جابه ابقي عدلوها 
-     
+       
+    }
 
+    void Jump()
+    {
+         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+         jumpSound.Play();
+    }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy Head"))
+        {
+            Destroy(collision.transform.parent.gameObject);
+            Jump();
+        }
+    }
 
+    bool IsGrounded()
+    {
+        return Physics.CheckSphere(groundCheck.position, .1f, ground);
     }
 }
